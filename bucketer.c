@@ -2,28 +2,48 @@
 #include <assert.h>
 
 struct CountsBySoH {
-  int healthy;
-  int exchange;
-  int failed;
+    int healthy;
+    int exchange;
+    int failed;
 };
 
-struct CountsBySoH countBatteriesByHealth(const int* presentCapacities, int nBatteries) {
-  struct CountsBySoH counts = {0, 0, 0};
-  return counts;
+struct CountsBySoH countBatteriesByHealth(int presentCapacities[], int numBatteries) {
+    struct CountsBySoH counts;
+    counts.healthy = 0;
+    counts.exchange = 0;
+    counts.failed = 0;
+
+    for (int i = 0; i < numBatteries; i++) {
+        int presentCapacity = presentCapacities[i];
+        double soh = ((double)presentCapacity / 120.0) * 100.0; // Assuming rated capacity is 120 Ah
+
+        if (soh > 80.0) {
+            counts.healthy++;
+        } else if (soh >= 65.0) {
+            counts.exchange++;
+        } else {
+            counts.failed++;
+        }
+    }
+
+    return counts;
 }
 
 void testBucketingByHealth() {
-  const int presentCapacities[] = {115, 118, 80, 95, 91, 77};
-  const int numberOfBatteries = sizeof(presentCapacities) / sizeof(presentCapacities[0]);
-  printf("Counting batteries by SoH...\n");
-  struct CountsBySoH counts = countBatteriesByHealth(presentCapacities, numberOfBatteries);
-  assert(counts.healthy == 2);
-  assert(counts.exchange == 3);
-  assert(counts.failed == 1);
-  printf("Done counting :)\n");
+    printf("Counting batteries by SoH...\n");
+    int presentCapacities[] = {115, 118, 80, 95, 91, 77};
+    int numBatteries = sizeof(presentCapacities) / sizeof(presentCapacities[0]);
+    struct CountsBySoH counts = countBatteriesByHealth(presentCapacities, numBatteries);
+
+    assert(counts.healthy == 2);
+    assert(counts.exchange == 3);
+    assert(counts.failed == 1);
+
+    printf("Done counting :)\n");
 }
 
 int main() {
-  testBucketingByHealth();
-  return 0;
+    testBucketingByHealth();
+    return 0;
 }
+
